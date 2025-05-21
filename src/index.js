@@ -8,8 +8,8 @@ import { GeminiEmbeddings } from "./worker.js";
 import { v4 as uuidv4 } from "uuid";
 const queue = new Queue("file-upload-queue", {
   connection: {
-    host: "localhost",
-    port: 6379,
+    host: process.env.QueueHost,
+    port: process.env.QueuePort,
   },
 });
 const session = new Map();
@@ -24,7 +24,7 @@ const formatDocsAsContext = (docs) => {
 };
 
 const storage = multer.diskStorage({
-  destination: (_, __, cb) => cb(null, "uploads/"),
+  destination: (_, __, cb) => cb(null, "src/uploads/"),
   filename: (_, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(null, `${uniqueSuffix}-${file.originalname}`);
@@ -47,7 +47,7 @@ const upload = multer({
 export const app = express();
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: [process.env.Client_Url],
     credentials: true,
   })
 );
@@ -180,7 +180,7 @@ app.post("/ask/:sessionId", async (req, res) => {
     const vectorStore = await QdrantVectorStore.fromExistingCollection(
       embeddings,
       {
-        url: "http://localhost:6333",
+        url: process.env.Qdrant_DB_URL,
         collectionName: `Collection_${sessionId}`,
       }
     );

@@ -88,14 +88,14 @@ const worker = new Worker(
       });
 
       const splitDocs = await textSplitter.splitDocuments(docs);
-      console.log(`Document split into ${splitDocs.length} chunks`);
+      // console.log(`Document split into ${splitDocs.length} chunks`);
 
       const embeddings = new GeminiEmbeddings();
 
       const vectorStore = await QdrantVectorStore.fromExistingCollection(
         embeddings,
         {
-          url: "http://localhost:6333",
+          url: process.env.Qdrant_DB_URL,
           collectionName: `Collection_${data?.sessionId}`,
         }
       );
@@ -124,9 +124,9 @@ const worker = new Worker(
         }
       }
 
-      console.log(
-        `Job ${job.id} completed. Successfully added ${successCount} out of ${splitDocs.length} documents to vector store`
-      );
+      // console.log(
+      //   `Job ${job.id} completed. Successfully added ${successCount} out of ${splitDocs.length} documents to vector store`
+      // );
       return {
         success: true,
         processedCount: successCount,
